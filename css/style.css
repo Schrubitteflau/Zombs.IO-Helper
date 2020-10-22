@@ -1,0 +1,17 @@
+body
+{
+    width: 500px;
+    height: 500px;
+}
+
+#zombs-link
+{
+    font-weight: bold;
+}
+
+#zombs-link:hover
+{
+    color: red;
+    text-decoration: underline;
+    cursor: pointer;
+}
