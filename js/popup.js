@@ -4,19 +4,20 @@
 /*
 grid = Game.currentGame.world.entityGrid.cellEntities;
 
-function numKeys(obj)
-{
-  	return Object.keys(obj).length;
-}
-
 for (let i = 0; i < grid.length; i++)
 {
   	const g = grid[i];
 
-    if (numKeys(g) > 0)
+    if (Object.keys(g).length > 0)
     {
         console.log(i, g);
     }
+}
+
+for (const id in Game.currentGame.world.entities)
+{
+    const e = Game.currentGame.world.entities[id];
+    console.log(e.fromTick.model, e.fromTick.position);
 }
 
 clé : position, propriété unique qui vaut true : id de l'entité car une entité est sur plusieurs cases
@@ -29,6 +30,7 @@ window.addEventListener("load", () =>
     main();
 });
 
+/* Chaque fois que le popup est cliqué (le mieux serait de conserver l'état de la page) */
 async function main()
 {
     const tab = await CurrentTab.getInstance();
@@ -41,6 +43,16 @@ async function main()
         {
             page.setGlobalMessage("Là on peut s'amuser :)");
             page.setServerName(await zombs.getServerName());
+
+            setTimeout(async function()
+            {
+                const playerData = await zombs.getPlayerData();
+                //const worldEntities = await zombs.getWorldEntities();
+
+                page.setPlayerName(playerData.name);
+                page.setPlayerPosition(playerData.position);
+                page.setEntities(worldEntities);
+            }, 5 * 1000);
         }
         else
         {
@@ -76,6 +88,16 @@ class ZombsController
     {
         return await this.sendTabMessage({ action: "get", element: "serverName" });
     }
+
+    async getPlayerData()
+    {
+        return await this.sendTabMessage({ action: "get", element: "playerData" });
+    }
+
+    async getWorldEntities()
+    {
+        return await this.sendTabMessage({ action: "get", element: "worldEntities" });
+    }
 }
 
 class PageController
@@ -84,6 +106,9 @@ class PageController
     {
         this.$globalMessage = document.getElementById("globalMessage");
         this.$serverName = document.getElementById("serverName");
+        this.$playerName = document.getElementById("playerName");
+        this.$playerPosition = document.getElementById("playerPosition");
+        this.$worldEntities = document.getElementById("worldEntities");
     }
 
     setGlobalMessage(HTML)
@@ -94,6 +119,39 @@ class PageController
     setServerName(name)
     {
         this.$serverName.textContent = name;
+    }
+
+    setPlayerName(name)
+    {
+        this.$playerName.textContent = name;
+    }
+
+    setPlayerPosition(position)
+    {
+        this.$playerPosition.textContent = `[ x: ${position.x}, y : ${position.y} ]`;
+    }
+
+    setEntities(entities)
+    {
+        // Déjà, on vide la liste
+        while (this.$worldEntities.firstElementChild)
+        {
+            this.$worldEntities.removeChild(this.$worldEntities.firstElementChild);
+        }
+
+        for (const entityId in entities)
+        {
+            const entity = entities[entityId];
+            const entityData = entity.fromTick;
+            const $li = document.createElement("li");
+
+            if (entityData)
+            {
+                $li.textContent = `${entityData.model} at [ x: ${entityData.position.x}, y: ${entityData.position.y} ]`;
+            }
+
+            this.$worldEntities.appendChild($li);
+        }
     }
 }
 
