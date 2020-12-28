@@ -7,7 +7,9 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse)
     const getFunctions =
     {
         "isInGame": isInGame,
-        "serverName": getServerName
+        "serverName": getServerName,
+        "playerData": getPlayerData,
+        "worldEntities": getWorldEntities
     };
 
     if (message.action === "get" && typeof getFunctions[message.element] === "function")
@@ -52,6 +54,50 @@ function getServerName()
                 const serverName = servers[serverId].name;
 
                 resolve(serverName);
+            }
+            catch (error)
+            {
+                reject(error);
+            }
+        });
+    });
+}
+
+function getPlayerData()
+{
+    const extract = new MyExtractor([ "Game.currentGame.world.localPlayer.entity.fromTick" ]);
+
+    return new Promise((resolve, reject) =>
+    {
+        extract.then((values) =>
+        {
+            try
+            {
+                const playerData = values.get("Game.currentGame.world.localPlayer.entity.fromTick");
+
+                resolve(playerData);
+            }
+            catch (error)
+            {
+                reject(error);
+            }
+        });
+    });
+}
+
+function getWorldEntities()
+{
+    const extract = new MyExtractor([ "Game.currentGame.world.entities" ]);
+
+    return new Promise((resolve, reject) =>
+    {
+        extract.then((values) =>
+        {
+            try
+            {
+                const entities = values.get("Game.currentGame.world.entities");
+
+                resolve(entities);
             }
             catch (error)
             {
@@ -198,6 +244,7 @@ class MyExtractor
 
                 const values = retrieveValuesAsMap(${JSON.stringify(this.variables)});
 
+                console.log("SEND VALUES", values);
                 window.postMessage({ uniqueID: ${this.uniqueID}, values: values }, "*");
             }
         )();

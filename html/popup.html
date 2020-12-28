@@ -10,7 +10,21 @@
     <div id="globalMessage"></div>
 
     <div id="realContent">
-        <p>Nom du serveur : <span id="serverName">-</span></p>
+        <div>
+            <h2>Données du serveur :</h2>
+            <p>Nom du serveur : <span id="serverName">-</span></p>
+        </div>
+        <div>
+            <h2>Données du joueur (actualisées toutes les 5 sec)</h2>
+            <p>Pseudo : <span id="playerName">-</span></p>
+            <p>Position : <span id="playerPosition">-</span></p>
+        </div>
+        <div>
+            <h2>Données sur le monde</h2>
+            <p>Entités :</p>
+            <ul id="worldEntities">
+            </ul>
+        </div>
     </div>
 
     <script src="../js/popup.js"></script>
